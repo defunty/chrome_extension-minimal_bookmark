@@ -18,6 +18,6 @@
    "options_page": "option/options.html",
    "permissions": [ "tabs", "https://*/*", "http://*/*", "storage" ],
    "update_url": "https://clients2.google.com/service/update2/crx",
-   "version": "0.402",
+   "version": "0.403",
    "web_accessible_resources": [ "myscript.js" ]
 }
