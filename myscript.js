@@ -1,0 +1,231 @@
+﻿var tab="";
+var count=0;
+var newid;
+var array=new Array;
+var max=30
+var t_count=0;
+
+chrome.storage.local.get("count",function(result){
+	if(typeof result.count!="undefined")
+		count=result.count;
+	else{console.log("count is undefined");}
+	console.log("初期count "+count);	
+});
+	
+chrome.storage.local.get("max",function(result){
+	var span = document.createElement("span");
+	var bodySpan = document.getElementsByTagName("span").item(0);
+	if(typeof result.max!="undefined"){
+		max = result.max;
+	}
+	else{
+		console.log("max is undefined");
+		chrome.storage.local.set({"max":30});
+	}
+	bodySpan.innerHTML = ("Max : "+max);
+	bodySpan.appendChild(span);
+	console.log("初期max "+max);
+});
+
+chrome.storage.local.get("array",function(result){
+
+	if(typeof result.array != "undefined"){
+		array=result.array;
+		chrome.storage.local.get("array",function(result){
+			if(count>max){
+			console.log("count:"+count+" max:"+max);
+			var dif =count-max;
+			console.log("dif : " +dif)
+			console.log(array.length);
+			result.array.splice(0,dif);
+			array=result.array;
+			console.log(array.length);
+			chrome.storage.local.set({"array":result.array});
+			console.log("count "+count);
+			count=max;
+			chrome.storage.local.set({"count":count});
+			console.log("count "+count);
+		}
+			for(var i=array.length-1; i>=0; i--){
+				displayValue(result.array[i].title,result.array[i].url);
+			}
+		});
+	
+	}
+	else{console.log("array is undefined");}
+	console.log("初期array.length "+array.length);
+});
+
+//----------
+/*
+chrome.storage.local.get("max",function(result){
+	var span = document.createElement("span");
+	var bodySpan = document.getElementsByTagName("span").item(0);
+	if(typeof result.max != "undefined"){
+		console.log("a");
+		if(count>result.max){
+			console.log("count:"+count+" max:"+result.max);
+			var dif =count-result.max;
+			console.log("dif : " +dif)
+			console.log(array.length);
+			array.splice(0,dif);
+			console.log(array.length);
+			chrome.storage.local.set({"array":array});
+		//	displayClear();
+			for(var i=array.length-1; i>=0; i--){
+				displayValue(array[i].title, array[i].url);
+			}
+			displayClear();
+		
+			count=result.max;
+			chrome.storage.local.set({"count":count});
+		}
+		max = result.max;
+
+		bodySpan.innerHTML = ("Max : "+max);
+		bodySpan.appendChild(span);
+		console.log("b");
+	}
+	else{
+		console.log("max is undefined");
+		chrome.storage.local.set({"max":30});
+		bodySpan.innerHTML = ("Max : "+max);
+		bodySpan.appendChild(span);
+		}
+	console.log("初期max "+max);
+});
+*/
+//--------
+
+
+//addボタン
+document.getElementById("add").onclick = function(){
+	//一旦全部表示消す
+	displayClear();
+	//再表示
+	chrome.tabs.getSelected(null,function(tab){
+		title = tab.title;
+		url = tab.url;
+		console.log(url);
+		
+		console.log("count "+count);
+		//tabオブジェクトを格納
+		array[count]=tab;
+
+		if(count==max)
+		array.splice(0,1);
+		else 
+		count++;
+		
+		chrome.storage.local.set({"array":array});
+		chrome.storage.local.get("array",function(result){
+			for(var i=array.length-1; i>=0; i--){
+				displayValue(result.array[i].title,result.array[i].url);
+			}
+		});
+		chrome.storage.local.set({"count":count});
+	});
+
+};
+
+//clearボタン
+document.getElementById("clear").onclick = function(){
+	var temp;
+	chrome.storage.local.get("max",function(result){
+		temp=result.max;
+		console.log("temp "+temp);
+		chrome.storage.local.clear();
+		console.log("temp "+temp);
+		chrome.storage.local.set({"max":temp});
+	})
+	
+	
+	
+	
+	count=0;
+	//chrome.storage.local.set({"count":count});
+	array.length=0;
+	//chrome.storage.local.set({"array":array});
+	displayClear();
+	console.log("clear");//yes,no選択を追加
+	
+};
+
+//optionボタン
+document.getElementById("option").onclick = function(){
+	chrome.tabs.create({url:"chrome-extension://eojhlpkifpijikpjpakcdklflnkohjnb/option/options.html"});
+	console.log("option");
+};
+
+function displayValue(str,url){
+	var ele = document.createElement("li");
+	var a = document.createElement("a");
+	a.onclick = function(){
+		chrome.tabs.create({url:url});
+	};
+	
+	a.href=url;
+	var body = document.getElementsByTagName("ol").item(0);
+	a.innerHTML = str;
+	a.href=url;
+	a.style.textDecoration="none";
+	
+	ele.id="newlist";
+	ele.style.margin="4px";
+	ele.appendChild(a);
+	body.appendChild(ele);	
+}
+function displayClear(){
+	//olの子ノードを全部消す
+	var body = document.getElementsByTagName("ol").item(0)
+	var child;
+	while(child=body.lastChild)
+	body.removeChild(child);
+}
+
+
+
+/*
+document.getElementById("test").onclick = function(){
+	test2();
+};
+function test(){ //arrayを格納する方法
+	//var userKeyIds = ["aaa","bbb","ccc"];
+	//chrome.storage.local.set({"aaa":"A"});
+	chrome.storage.local.get({userKeyIds:[]},function(result){
+	var userKeyIds = result.userKeyIds;
+	userKeyIds.push({"aaa":"A","bbb":"B"});
+		chrome.storage.local.set({userKeyIds:userKeyIds},function(){
+			chrome.storage.local.get("userKeyIds",function(){
+				console.log(result.userKeyIds);	
+			});
+		});
+	});
+}
+
+function test2(){ 
+	chrome.tabs.getSelected(null,function(tab){
+		tab=tab.title;
+		//console.log("test "+tab);
+		var ha = ["a","b","c"]
+		var t_str = t_count.toString();
+		//array.push({t_str:tab});
+		array[t_count]=t_count;
+		t_count++;
+		chrome.storage.local.set({"array":array});
+		
+		chrome.storage.local.get("array",function(result){
+			console.log(result.array);
+			//console.log(result.array.pop());
+			console.log(array.length);
+			for(var i=0;i<array.length;i++){
+				console.log("for突入")
+				console.log(result.array);
+				console.log(result.array.pop());
+			}
+			console.log(result.array);
+		});
+});
+}
+
+*/

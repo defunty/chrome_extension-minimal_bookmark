@@ -1,0 +1,11 @@
+{
+   "extDescription": {
+      "message": "簡易的でミクロなブックマーク機能です。"
+   },
+   "extName": {
+      "message": "チラ裏Bookmark"
+   },
+   "options": {
+      "message": "設定"
+   }
+}
